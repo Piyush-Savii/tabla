@@ -2,7 +2,6 @@ llms:
   openai:
     provider: openai
     url: None
-    LLM_API_KEY: XXX
     default_model: gpt-4o
     models:
       - gpt-4o
@@ -14,7 +13,6 @@ llms:
   google:
     provider: gemini
     llm_url: https://generativelanguage.googleapis.com/v1beta/openai/
-    LLM_API_KEY: YYY
     default_model: models/gemini-1.5-pro-latest
     models:
       - models/gemini-1.5-pro-latest
