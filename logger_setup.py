@@ -10,7 +10,7 @@ load_dotenv()
 log_level = os.getenv("LOG_LEVEL", "INFO").upper()
 
 # Get a custom name for the logger (e.g., chatbot name), fallback to 'chatbot'
-chatbot_name = os.getenv("CHATBOT_NAME", "chatbot").lower()
+chatbot_name = os.getenv("BOT_NAME", "chatbot").lower()
 
 # Create or retrieve the logger instance using chatbot name
 logger = logging.getLogger(chatbot_name)
@@ -34,7 +34,6 @@ console_handler.setFormatter(formatter)
 if not logger.hasHandlers():
     logger.addHandler(console_handler)
 
-#logger = logging.getLogger(os.getenv("CHATBOT_NAME", "palindrome-bot"))
 logger.setLevel(logging.DEBUG)
 
 file_handler = logging.FileHandler("logs/slackbot.log")

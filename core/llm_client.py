@@ -1,6 +1,7 @@
 # core/llm_client.py
 
 import json
+import os
 from typing import List, Dict
 
 # OpenAI SDK for interacting with GPT models
@@ -63,7 +64,7 @@ class LLMClient:
         # Load provider-specific configuration (API key, model, etc.)
         self.llm_provider = llm_provider
         self.llm_config = get_provider_config(self.llm_provider)
-        self.llm_api_key = self.llm_config["api_key"]
+        self.llm_api_key = os.getenv("AI_KEY")
         self.llm_model = self.llm_config["model"]
 
         if self.llm_provider == "gemini":
