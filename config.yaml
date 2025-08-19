@@ -1,0 +1,29 @@
+llms:
+  openai:
+    provider: openai
+    url: None
+    LLM_API_KEY: XXX
+    default_model: gpt-4o
+    models:
+      - gpt-4o
+      - gpt-4o-2024-05-13
+      - gpt-4-turbo
+      - gpt-3.5-turbo
+      - gpt-3.5-turbo-0125
+
+  google:
+    provider: gemini
+    llm_url: https://generativelanguage.googleapis.com/v1beta/openai/
+    LLM_API_KEY: YYY
+    default_model: models/gemini-1.5-pro-latest
+    models:
+      - models/gemini-1.5-pro-latest
+      - gemini-pro
+      - gemini-1.5-pro
+      - gemini-1.5-flash
+
+allowed_bots:
+  - slack
+  - telegram
+  - discord
+  - teams

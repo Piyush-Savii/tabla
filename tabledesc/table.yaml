@@ -1,0 +1,38 @@
+
+table_id: mythic-beanbag-464006-n5.TEST_DB.ORIGINATIONS
+dataset_id: mythic-beanbag-464006-n5.TEST_DB
+table_description: Google BigQuery Table containing Loan application data including
+  applicant salary, loan details, and risk profiling.
+string_lookup_fields:
+  policy
+  group_name
+  industry
+headers:
+  policy: Loan policy identifier, always use like
+  Term: Duration of the loan in months
+  Loan_Amount: Principal loan amount granted
+  date_application: Date when the borrower applied for the loan
+  gross_salary: Monthly income before deductions
+  net_salary: Monthly income after deductions
+  Installment: Monthly loan installment (EMI)
+  NTHP: Net Take Home Pay Ratio after EMI payment
+  Multiplier: Ratio used for affordability or loan assessment
+  DTI: Debt-to-Income ratio, Installment divided by net salary
+  disbursed_date: Date on which loan was disbursed
+  interest_rate: Annual interest rate applied to the loan
+  company_id: Identifier for the lending company
+  company_status: Status of the company or loan product lifecycle
+  industry: Industry classification of borrower or company
+  group_name: Sub-group or cluster within company or industry
+  launch_date: Date the loan product or company group launched
+  Exception_lending: Flag indicating exception-based loan approval (0 = no, 1 = yes)
+  origination_fee: Processing fee charged for originating the loan
+  borrower_tenure: Length of borrower's employment or credit history
+  borrowers_age: Age of the borrower
+  max_loan_term: Maximum loan duration allowed for this product
+  loan_type_detailed: Detailed classification of the loan (e.g. New Loan, Reloan,
+    Refinanced Loan, Matured Loan, Early Reloan)
+  is_refinanced: Flag indicating if the loan is refinanced (0 = no, 1 = yes)
+  Product_key: Unique product ID for the loan product
+  application_key: Unique ID of the specific loan application
+  risk_score: Credit or risk score of the borrower Higher the lower
