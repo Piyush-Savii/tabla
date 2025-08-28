@@ -4,24 +4,28 @@ import os
 import io
 import cProfile
 import pstats
+import json
 
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware  # Enables browser/frontend access
+from fastapi import FastAPI, Request, APIRouter, Response
+from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
+# Assuming these modules are part of your project structure
 from logger_setup import logger
 from core.platform import PlatformBase
 from core.llm_client import LLMClient, test_llm_connections
 from pkg_setup import install_missing_or_mismatched
 
 
+# --- Setup and Configuration ---
+
 def create_app() -> FastAPI:
     """
     Creates and configures the FastAPI app.
-    - Loads environment variables
-    - Installs missing packages (for local/dev use)
-    - Tests AI model connection
-    - Registers chatbot platform (Slack, etc.)
+    - Loads environment variables.
+    - Installs missing packages (for local/dev use).
+    - Tests AI model connection.
+    - Registers chatbot platform (Slack, etc.).
     Returns the configured FastAPI app instance.
     """
     func = 'create_app'
@@ -47,16 +51,42 @@ def create_app() -> FastAPI:
 
     # Allow browser-based clients to access the API
     fastapi_app.add_middleware(
-        CORSMiddleware, # type: ignore  # Enables frontend-to-backend calls
-        allow_origins=["*"],  # Accept requests from any frontend (can restrict later)
+        CORSMiddleware, # type: ignore
+        allow_origins=["*"],
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
     )
 
-    # Connect the chatbot platform (Slack, etc.) to the API
+    # --- Register the Slack Router ---
+    # This is a key change. We now create a dedicated router for Slack events.
+    # This allows us to handle the URL verification challenge separately from other API endpoints.
+    
+    slack_router = APIRouter()
+    
+    # Connect the chatbot platform (Slack, etc.) to the new router
+    # This assumes PlatformBase contains the logic to handle Slack events
     platform = PlatformBase(LLMClient(ai_provider))
-    fastapi_app.include_router(platform.router)
+    slack_router.include_router(platform.router)
+
+    # Add the URL verification endpoint
+    @slack_router.post("/")
+    async def slack_verification_and_events(req: Request):
+        """
+        Handles the initial Slack URL verification and all subsequent events.
+        """
+        body = await req.json()
+        
+        # Check for the challenge parameter and respond if it's a verification request
+        if "challenge" in body:
+            return Response(content=body["challenge"], media_type="text/plain")
+        
+        # For all other events, pass the request to the PlatformBase handler
+        return await req.app.router.get_route(f"{slack_router.prefix}/").body(req)
+
+    # Include the Slack router at the /slack/events path
+    # NOTE: You MUST update your Slack app's Request URL to point to this path.
+    fastapi_app.include_router(slack_router, prefix="/slack/events")
 
     return fastapi_app
 
@@ -89,6 +119,8 @@ enable_profiler = os.getenv("ENABLE_PROFILER", "false").lower() == "true"
 app = profile_app_setup() if enable_profiler else create_app()
 
 
+# --- Main API Endpoints ---
+
 @app.get("/")
 async def get_api_information():
     """
@@ -100,15 +132,10 @@ async def get_api_information():
         "version": "1.0.0\n",
         "description": "API for processing chat conversations with data and AI capabilities\n",
         "endpoints": {
-            "chat": {
-                "path": "/chat",
+            "slack_events": {
+                "path": "/slack/events",
                 "method": "POST",
-                "description": "Main chat endpoint - sends messages to the AI assistant\n"
-            },
-            "quick_query": {
-                "path": "/quick-query",
-                "method": "POST",
-                "description": "Simple one-shot query endpoint without chat history\n"
+                "description": "Main endpoint for Slack events and URL verification"
             },
             "health": {
                 "path": "/health",
